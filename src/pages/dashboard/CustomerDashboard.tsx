@@ -1,8 +1,8 @@
 
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   ShoppingCart,
   Heart,
@@ -12,17 +12,139 @@ import {
   CreditCard,
   MapPin,
   Package,
+  Archive,
+  Plus,
+  Trash2,
+  Edit,
+  Star
 } from 'lucide-react';
 import { orders } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+// Mock wishlist data
+const wishlistItems = [
+  {
+    id: "w1",
+    name: "Professional DSLR Camera",
+    image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&q=80&w=1000",
+    price: 3500,
+    vendor: "Camera World",
+    available: true
+  },
+  {
+    id: "w2",
+    name: "Mountain Bike",
+    image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=1000",
+    price: 2100,
+    vendor: "Sports Center",
+    available: true
+  },
+  {
+    id: "w3",
+    name: "Luxury Sofa",
+    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1000",
+    price: 5000,
+    vendor: "Home Luxuries",
+    available: false
+  }
+];
+
+// Mock browsing history
+const browsingHistory = [
+  {
+    id: "p1",
+    name: "Professional DSLR Camera",
+    image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&q=80&w=1000",
+    price: 3500,
+    viewedOn: "2025-04-08T15:30:00"
+  },
+  {
+    id: "p2",
+    name: "Luxury Sofa",
+    image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1000",
+    price: 5000,
+    viewedOn: "2025-04-08T14:45:00"
+  },
+  {
+    id: "p3",
+    name: "Power Drill Set",
+    image: "https://images.unsplash.com/photo-1616345840969-855ef4b4f6b5?auto=format&fit=crop&q=80&w=1000",
+    price: 1800,
+    viewedOn: "2025-04-08T12:15:00"
+  },
+  {
+    id: "p4",
+    name: "Mountain Bike",
+    image: "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=1000",
+    price: 2100,
+    viewedOn: "2025-04-07T16:20:00"
+  }
+];
+
+// Mock addresses
+const addresses = [
+  {
+    id: "addr1",
+    name: "Home",
+    addressLine1: "123 Main Street",
+    addressLine2: "Apartment 4B",
+    city: "Mumbai",
+    state: "Maharashtra",
+    pincode: "400001",
+    phone: "9876543210",
+    isDefault: true
+  },
+  {
+    id: "addr2",
+    name: "Office",
+    addressLine1: "456 Business Park",
+    addressLine2: "Tower B, 5th Floor",
+    city: "Mumbai",
+    state: "Maharashtra",
+    pincode: "400099",
+    phone: "9876543211",
+    isDefault: false
+  }
+];
+
+// Mock payment methods
+const paymentMethods = [
+  {
+    id: "pm1",
+    type: "creditCard",
+    name: "HDFC Bank Credit Card",
+    lastDigits: "4567",
+    expiryDate: "09/28",
+    isDefault: true
+  },
+  {
+    id: "pm2",
+    type: "upi",
+    name: "Google Pay",
+    upiId: "user@okicici",
+    isDefault: false
+  },
+  {
+    id: "pm3",
+    type: "upi",
+    name: "PhonePe",
+    upiId: "9876543210@ybl",
+    isDefault: false
+  }
+];
 
 const CustomerDashboard = () => {
   const { user } = useAuth();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('orders');
+  const [showAddAddressForm, setShowAddAddressForm] = useState(false);
+  const [showAddPaymentForm, setShowAddPaymentForm] = useState(false);
 
   React.useEffect(() => {
     if (location.state?.orderPlaced) {
@@ -54,6 +176,17 @@ const CustomerDashboard = () => {
       default:
         return 'bg-yellow-100 text-yellow-800';
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    const options: Intl.DateTimeFormatOptions = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
   return (
@@ -191,7 +324,7 @@ const CustomerDashboard = () => {
                                 
                                 <div className="flex justify-between items-center">
                                   <div className="font-medium">
-                                    Total: <span className="text-brand-orange">${order.totalPrice.toFixed(2)}</span>
+                                    Total: <span className="text-brand-orange">₹{(order.totalPrice * 75).toFixed(2)}</span>
                                   </div>
                                   <Button variant="outline" size="sm">
                                     View Details
@@ -225,9 +358,11 @@ const CustomerDashboard = () => {
                     <p className="text-gray-500 mb-6">
                       When you rent products, your orders will appear here
                     </p>
-                    <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
-                      Start Shopping
-                    </Button>
+                    <Link to="/products">
+                      <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
+                        Start Shopping
+                      </Button>
+                    </Link>
                   </div>
                 )}
                 
@@ -244,16 +379,60 @@ const CustomerDashboard = () => {
             {activeTab === 'wishlist' && (
               <div>
                 <h1 className="text-2xl font-bold mb-6">My Wishlist</h1>
-                <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                  <Heart className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-xl font-medium mb-2">Your wishlist is empty</h3>
-                  <p className="text-gray-500 mb-6">
-                    Save items you want to rent later by clicking the heart icon on product pages
-                  </p>
-                  <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
-                    Browse Products
-                  </Button>
-                </div>
+                
+                {wishlistItems.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {wishlistItems.map((item) => (
+                      <Card key={item.id} className="overflow-hidden">
+                        <div className="relative h-48">
+                          <img 
+                            src={item.image} 
+                            alt={item.name} 
+                            className="w-full h-full object-cover" 
+                          />
+                          <button className="absolute top-2 right-2 bg-white rounded-full p-1">
+                            <Trash2 size={18} className="text-red-500" />
+                          </button>
+                        </div>
+                        <CardContent className="p-4">
+                          <h3 className="font-medium text-lg truncate">{item.name}</h3>
+                          <p className="text-brand-orange font-medium mb-1">₹{item.price.toFixed(2)} / day</p>
+                          <p className="text-gray-500 text-sm mb-4">Vendor: {item.vendor}</p>
+                          
+                          <div className="flex gap-2">
+                            {item.available ? (
+                              <Link to={`/product/${item.id}`} className="flex-1">
+                                <Button className="w-full bg-brand-orange">
+                                  Rent Now
+                                </Button>
+                              </Link>
+                            ) : (
+                              <Button className="w-full" disabled>
+                                Currently Unavailable
+                              </Button>
+                            )}
+                            <Button variant="outline" className="w-12">
+                              <ShoppingCart size={18} />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                    <Heart className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-xl font-medium mb-2">Your wishlist is empty</h3>
+                    <p className="text-gray-500 mb-6">
+                      Save items you want to rent later by clicking the heart icon on product pages
+                    </p>
+                    <Link to="/products">
+                      <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
+                        Browse Products
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
 
@@ -266,9 +445,11 @@ const CustomerDashboard = () => {
                   <p className="text-gray-500 mb-6">
                     Add items to your cart by clicking the "Add to Cart" button on product pages
                   </p>
-                  <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
-                    Browse Products
-                  </Button>
+                  <Link to="/products">
+                    <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
+                      Browse Products
+                    </Button>
+                  </Link>
                 </div>
               </div>
             )}
@@ -276,48 +457,375 @@ const CustomerDashboard = () => {
             {activeTab === 'history' && (
               <div>
                 <h1 className="text-2xl font-bold mb-6">Browsing History</h1>
-                <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                  <Clock className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-xl font-medium mb-2">No browsing history yet</h3>
-                  <p className="text-gray-500 mb-6">
-                    Products you view will appear here so you can easily find them again
-                  </p>
-                  <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
-                    Browse Products
-                  </Button>
-                </div>
+                
+                {browsingHistory.length > 0 ? (
+                  <div>
+                    <div className="flex justify-between items-center mb-6">
+                      <p className="text-gray-500">Recently viewed products</p>
+                      <Button variant="ghost" size="sm" className="text-gray-500">
+                        Clear History
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {browsingHistory.map((item) => (
+                        <div key={item.id} className="bg-white rounded-lg shadow-sm p-4 flex items-center">
+                          <div className="w-16 h-16 mr-4">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-full h-full object-cover rounded"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <Link to={`/product/${item.id}`} className="font-medium hover:text-brand-orange">
+                              {item.name}
+                            </Link>
+                            <p className="text-sm text-gray-500">
+                              Viewed on {formatDate(item.viewedOn)}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-brand-orange">₹{item.price.toFixed(2)} / day</p>
+                            <div className="mt-1">
+                              <Button size="sm" variant="outline" className="mr-2">
+                                <Heart size={16} className="mr-1" />
+                                Save
+                              </Button>
+                              <Button size="sm" className="bg-brand-orange">
+                                <ShoppingCart size={16} className="mr-1" />
+                                Add
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                    <Clock className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-xl font-medium mb-2">No browsing history yet</h3>
+                    <p className="text-gray-500 mb-6">
+                      Products you view will appear here so you can easily find them again
+                    </p>
+                    <Link to="/products">
+                      <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
+                        Browse Products
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
 
             {activeTab === 'addresses' && (
               <div>
-                <h1 className="text-2xl font-bold mb-6">My Addresses</h1>
-                <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                  <MapPin className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-xl font-medium mb-2">No addresses saved</h3>
-                  <p className="text-gray-500 mb-6">
-                    Save your delivery addresses for faster checkout
-                  </p>
-                  <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
-                    Add New Address
+                <div className="flex justify-between items-center mb-6">
+                  <h1 className="text-2xl font-bold">My Addresses</h1>
+                  <Button 
+                    className="bg-brand-orange" 
+                    onClick={() => setShowAddAddressForm(!showAddAddressForm)}
+                  >
+                    <Plus size={18} className="mr-1" />
+                    {showAddAddressForm ? "Cancel" : "Add New Address"}
                   </Button>
                 </div>
+                
+                {showAddAddressForm && (
+                  <Card className="mb-6">
+                    <CardHeader>
+                      <CardTitle>Add New Address</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Address Name
+                            </label>
+                            <Input placeholder="e.g. Home, Office" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Phone Number
+                            </label>
+                            <Input placeholder="Your phone number" />
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Address Line 1
+                          </label>
+                          <Input placeholder="House number, street name" />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Address Line 2 (Optional)
+                          </label>
+                          <Input placeholder="Apartment, suite, unit, building, etc." />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              City
+                            </label>
+                            <Input placeholder="City name" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              State
+                            </label>
+                            <Input placeholder="State" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              PIN Code
+                            </label>
+                            <Input placeholder="6-digit PIN code" />
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="default-address"
+                            className="mr-2"
+                          />
+                          <label htmlFor="default-address">
+                            Set as default delivery address
+                          </label>
+                        </div>
+                        
+                        <Button className="mt-2 bg-gradient-to-r from-brand-orange to-brand-purple">
+                          Save Address
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {addresses.length > 0 ? (
+                  <div className="space-y-4">
+                    {addresses.map((address) => (
+                      <Card key={address.id} className={`border ${address.isDefault ? 'border-brand-orange' : ''}`}>
+                        <CardContent className="p-6">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="font-medium text-lg">{address.name}</h3>
+                                {address.isDefault && (
+                                  <Badge className="bg-orange-100 text-brand-orange">
+                                    Default
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-gray-700">{address.addressLine1}</p>
+                              {address.addressLine2 && <p className="text-gray-700">{address.addressLine2}</p>}
+                              <p className="text-gray-700">
+                                {address.city}, {address.state} {address.pincode}
+                              </p>
+                              <p className="text-gray-700 mt-1">Phone: {address.phone}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Edit size={16} />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Trash2 size={16} className="text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                          {!address.isDefault && (
+                            <Button variant="outline" className="mt-4" size="sm">
+                              Set as Default
+                            </Button>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                    <MapPin className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-xl font-medium mb-2">No addresses saved</h3>
+                    <p className="text-gray-500 mb-6">
+                      Save your delivery addresses for faster checkout
+                    </p>
+                    <Button 
+                      variant="default" 
+                      className="bg-gradient-to-r from-brand-orange to-brand-purple"
+                      onClick={() => setShowAddAddressForm(true)}
+                    >
+                      Add New Address
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
             {activeTab === 'payment' && (
               <div>
-                <h1 className="text-2xl font-bold mb-6">Payment Methods</h1>
-                <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                  <CreditCard className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-xl font-medium mb-2">No payment methods saved</h3>
-                  <p className="text-gray-500 mb-6">
-                    Save your payment methods for faster checkout
-                  </p>
-                  <Button variant="default" className="bg-gradient-to-r from-brand-orange to-brand-purple">
-                    Add Payment Method
+                <div className="flex justify-between items-center mb-6">
+                  <h1 className="text-2xl font-bold">Payment Methods</h1>
+                  <Button 
+                    className="bg-brand-orange" 
+                    onClick={() => setShowAddPaymentForm(!showAddPaymentForm)}
+                  >
+                    <Plus size={18} className="mr-1" />
+                    {showAddPaymentForm ? "Cancel" : "Add Payment Method"}
                   </Button>
                 </div>
+                
+                {showAddPaymentForm && (
+                  <Card className="mb-6">
+                    <CardHeader>
+                      <CardTitle>Add Payment Method</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Payment Type
+                          </label>
+                          <Select defaultValue="credit">
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select payment type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectItem value="credit">Credit/Debit Card</SelectItem>
+                                <SelectItem value="upi">UPI</SelectItem>
+                                <SelectItem value="netbanking">Net Banking</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Card Number
+                            </label>
+                            <Input placeholder="1234 5678 9012 3456" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Name on Card
+                            </label>
+                            <Input placeholder="Cardholder name" />
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Expiry Date
+                            </label>
+                            <Input placeholder="MM/YY" />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              CVV
+                            </label>
+                            <Input placeholder="123" type="password" />
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id="default-payment"
+                            className="mr-2"
+                          />
+                          <label htmlFor="default-payment">
+                            Set as default payment method
+                          </label>
+                        </div>
+                        
+                        <Button className="mt-2 bg-gradient-to-r from-brand-orange to-brand-purple">
+                          Save Payment Method
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+                
+                {paymentMethods.length > 0 ? (
+                  <div className="space-y-4">
+                    {paymentMethods.map((method) => (
+                      <Card key={method.id} className={`border ${method.isDefault ? 'border-brand-orange' : ''}`}>
+                        <CardContent className="p-6">
+                          <div className="flex justify-between items-start">
+                            <div className="flex items-center">
+                              {method.type === 'creditCard' ? (
+                                <CreditCard size={24} className="mr-4" />
+                              ) : method.type === 'upi' && method.name === 'Google Pay' ? (
+                                <div className="w-6 h-6 mr-4 flex items-center justify-center bg-white">
+                                  <span className="text-xl font-bold">G</span>
+                                </div>
+                              ) : method.type === 'upi' && method.name === 'PhonePe' ? (
+                                <div className="w-6 h-6 mr-4 flex items-center justify-center bg-white">
+                                  <span className="text-xl font-bold text-indigo-600">P</span>
+                                </div>
+                              ) : (
+                                <CreditCard size={24} className="mr-4" />
+                              )}
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-medium">{method.name}</h3>
+                                  {method.isDefault && (
+                                    <Badge className="bg-orange-100 text-brand-orange">
+                                      Default
+                                    </Badge>
+                                  )}
+                                </div>
+                                {method.type === 'creditCard' ? (
+                                  <p className="text-sm text-gray-500">
+                                    •••• •••• •••• {method.lastDigits} | Expires {method.expiryDate}
+                                  </p>
+                                ) : method.type === 'upi' && (
+                                  <p className="text-sm text-gray-500">{method.upiId}</p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Edit size={16} />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Trash2 size={16} className="text-red-500" />
+                              </Button>
+                            </div>
+                          </div>
+                          {!method.isDefault && (
+                            <Button variant="outline" className="mt-4" size="sm">
+                              Set as Default
+                            </Button>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+                    <CreditCard className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-xl font-medium mb-2">No payment methods saved</h3>
+                    <p className="text-gray-500 mb-6">
+                      Save your payment methods for faster checkout
+                    </p>
+                    <Button 
+                      variant="default" 
+                      className="bg-gradient-to-r from-brand-orange to-brand-purple"
+                      onClick={() => setShowAddPaymentForm(true)}
+                    >
+                      Add Payment Method
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -332,27 +840,42 @@ const CustomerDashboard = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Full Name
                         </label>
-                        <input
+                        <Input
                           type="text"
-                          className="border rounded-md p-2 w-full"
                           value={user?.name || ''}
-                          readOnly
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Email Address
                         </label>
-                        <input
+                        <Input
                           type="email"
-                          className="border rounded-md p-2 w-full"
                           value={user?.email || ''}
-                          readOnly
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Phone Number
+                        </label>
+                        <Input
+                          type="tel"
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Date of Birth
+                        </label>
+                        <Input
+                          type="date"
                         />
                       </div>
                     </div>
                     <Button className="bg-gradient-to-r from-brand-orange to-brand-purple">
-                      Edit Information
+                      Save Changes
                     </Button>
                   </div>
                   
@@ -365,9 +888,8 @@ const CustomerDashboard = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Current Password
                         </label>
-                        <input
+                        <Input
                           type="password"
-                          className="border rounded-md p-2 w-full"
                         />
                       </div>
                     </div>
@@ -376,18 +898,16 @@ const CustomerDashboard = () => {
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           New Password
                         </label>
-                        <input
+                        <Input
                           type="password"
-                          className="border rounded-md p-2 w-full"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           Confirm New Password
                         </label>
-                        <input
+                        <Input
                           type="password"
-                          className="border rounded-md p-2 w-full"
                         />
                       </div>
                     </div>
@@ -421,9 +941,33 @@ const CustomerDashboard = () => {
                         SMS notifications about orders and deliveries
                       </label>
                     </div>
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="marketing-emails"
+                        className="mr-2"
+                      />
+                      <label htmlFor="marketing-emails">
+                        Receive special offers and promotions
+                      </label>
+                    </div>
                     <Button className="bg-gradient-to-r from-brand-orange to-brand-purple">
                       Save Preferences
                     </Button>
+                  </div>
+                  
+                  <hr className="my-6" />
+                  
+                  <h2 className="text-lg font-semibold mb-4">Account Actions</h2>
+                  <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <Button variant="outline" className="border-yellow-500 text-yellow-600 hover:text-yellow-700">
+                        Download My Data
+                      </Button>
+                      <Button variant="outline" className="border-red-500 text-red-600 hover:text-red-700">
+                        Delete Account
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -436,3 +980,4 @@ const CustomerDashboard = () => {
 };
 
 export default CustomerDashboard;
+
