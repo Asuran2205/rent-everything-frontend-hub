@@ -12,7 +12,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { products } from '@/data/mockData';
+import { products, categories } from '@/data/mockData';
 import { Star, Clock, Calendar as CalendarIcon, MapPin } from 'lucide-react';
 import {
   Select,
