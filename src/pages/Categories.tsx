@@ -24,13 +24,6 @@ const Categories = () => {
               className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
             >
               <div className="h-40 bg-gradient-to-r from-brand-orange to-brand-purple relative overflow-hidden">
-                {category.image && (
-                  <img 
-                    src={category.image} 
-                    alt={category.name}
-                    className="w-full h-full object-cover object-center opacity-75"
-                  />
-                )}
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20">
                   <h3 className="text-2xl font-bold text-white">{category.name}</h3>
                 </div>
