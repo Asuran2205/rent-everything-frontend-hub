@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { StarIcon, Search } from 'lucide-react';
+import { StarIcon, Search, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -12,11 +12,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { products, categories } from '@/data/mockData';
+import { useToast } from "@/components/ui/use-toast";
 
 const Products = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortBy, setSortBy] = useState('recommended');
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const { toast } = useToast();
 
   // Filter products based on search and category
   const filteredProducts = products.filter(product => {
@@ -33,6 +36,24 @@ const Products = () => {
     if (sortBy === 'rating') return b.rating - a.rating;
     return 0;
   });
+
+  const toggleWishlist = (productId: string) => {
+    setWishlist(prev => {
+      if (prev.includes(productId)) {
+        toast({
+          title: "Removed from wishlist",
+          description: "Item has been removed from your wishlist",
+        });
+        return prev.filter(id => id !== productId);
+      } else {
+        toast({
+          title: "Added to wishlist",
+          description: "Item has been added to your wishlist",
+        });
+        return [...prev, productId];
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -89,42 +110,56 @@ const Products = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {sortedProducts.length > 0 ? (
             sortedProducts.map((product) => (
-              <Link to={`/product/${product.id}`} key={product.id} className="group">
-                <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                  <div className="h-48 overflow-hidden relative">
-                    <img 
-                      src={product.images[0]} 
-                      alt={product.title}
-                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute bottom-2 right-2 bg-white px-2 py-1 rounded text-sm font-medium text-gray-800">
-                      ${product.price}/{product.priceUnit}
-                    </div>
-                  </div>
-                  
-                  <div className="p-4">
-                    <h3 className="font-medium text-lg group-hover:text-brand-orange transition-colors">
-                      {product.title}
-                    </h3>
-                    
-                    <p className="text-gray-500 text-sm mt-1 line-clamp-2">
-                      {product.description}
-                    </p>
-                    
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <StarIcon className="h-4 w-4 text-yellow-400 fill-current" />
-                        <span className="text-sm ml-1">{product.rating}</span>
-                        <span className="text-xs text-gray-500 ml-1">({product.reviews})</span>
+              <div key={product.id} className="group relative">
+                <Link to={`/product/${product.id}`} className="block">
+                  <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div className="h-48 overflow-hidden relative">
+                      <img 
+                        src={product.images[0]} 
+                        alt={product.title}
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute bottom-2 right-2 bg-white px-2 py-1 rounded text-sm font-medium text-gray-800">
+                        ₹{product.price}/{product.priceUnit}
                       </div>
+                    </div>
+                    
+                    <div className="p-4">
+                      <h3 className="font-medium text-lg group-hover:text-brand-orange transition-colors">
+                        {product.title}
+                      </h3>
                       
-                      <span className="text-xs text-gray-500">
-                        {categories.find(c => c.id === product.category)?.name}
-                      </span>
+                      <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                        {product.description}
+                      </p>
+                      
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center">
+                          <StarIcon className="h-4 w-4 text-yellow-400 fill-current" />
+                          <span className="text-sm ml-1">{product.rating}</span>
+                          <span className="text-xs text-gray-500 ml-1">({product.reviews})</span>
+                        </div>
+                        
+                        <span className="text-xs text-gray-500">
+                          {categories.find(c => c.id === product.category)?.name}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleWishlist(product.id);
+                  }}
+                  className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <Heart 
+                    size={18} 
+                    className={wishlist.includes(product.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'}
+                  />
+                </button>
+              </div>
             ))
           ) : (
             <div className="col-span-full text-center py-16">

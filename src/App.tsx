@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,8 +14,18 @@ import ForCustomer from "@/pages/ForCustomer";
 import ForVendor from "@/pages/ForVendor";
 import ForDelivery from "@/pages/ForDelivery";
 import Products from "@/pages/Products";
+import Categories from "@/pages/Categories";
 import ProductDetail from "@/pages/ProductDetail";
 import Checkout from "@/pages/Checkout";
+import Wishlist from "@/pages/Wishlist";
+
+// Footer Pages
+import AboutUs from "@/pages/AboutUs";
+import HowItWorks from "@/pages/HowItWorks";
+import FAQ from "@/pages/FAQ";
+import ContactUs from "@/pages/ContactUs";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
 
 // Auth Pages
 import LoginCustomer from "@/pages/auth/LoginCustomer";
@@ -46,9 +57,19 @@ const App = () => (
               <Route path="/for-vendor" element={<ForVendor />} />
               <Route path="/for-delivery" element={<ForDelivery />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/categories" element={<Categories />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/checkout" element={<Checkout />} />
-
+              <Route path="/wishlist" element={<Wishlist />} />
+              
+              {/* Footer Pages */}
+              <Route path="/about" element={<AboutUs />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
+              
               {/* Authentication */}
               <Route path="/login/customer" element={<LoginCustomer />} />
               <Route path="/signup/customer" element={<SignupCustomer />} />

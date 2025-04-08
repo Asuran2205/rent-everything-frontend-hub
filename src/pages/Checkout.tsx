@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
@@ -64,7 +62,9 @@ const Checkout = () => {
       });
     }, 2000);
   };
-
+  
+  const priceInRupees = totalPrice * 83.5; // Rough conversion rate
+  
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
@@ -101,7 +101,7 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Price per {product.priceUnit}</span>
-                  <span>${product.price.toFixed(2)}</span>
+                  <span>₹{(product.price * 83.5).toFixed(0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Delivery Fee</span>
@@ -112,7 +112,7 @@ const Checkout = () => {
               <div className="border-t pt-4 mt-4">
                 <div className="flex justify-between items-center font-bold text-lg">
                   <span>Total</span>
-                  <span className="text-brand-orange">${totalPrice.toFixed(2)}</span>
+                  <span className="text-brand-orange">₹{priceInRupees.toFixed(0)}</span>
                 </div>
               </div>
             </div>
@@ -224,10 +224,12 @@ const Checkout = () => {
                 </CardHeader>
                 <CardContent>
                   <Tabs defaultValue="card">
-                    <TabsList className="grid grid-cols-3">
+                    <TabsList className="grid grid-cols-5">
                       <TabsTrigger value="card">Credit Card</TabsTrigger>
-                      <TabsTrigger value="paypal">PayPal</TabsTrigger>
-                      <TabsTrigger value="cash">Cash on Delivery</TabsTrigger>
+                      <TabsTrigger value="upi">UPI</TabsTrigger>
+                      <TabsTrigger value="gpay">Google Pay</TabsTrigger>
+                      <TabsTrigger value="phonepe">PhonePe</TabsTrigger>
+                      <TabsTrigger value="cash">Cash</TabsTrigger>
                     </TabsList>
                     
                     <TabsContent value="card" className="space-y-4 mt-4">
@@ -247,10 +249,42 @@ const Checkout = () => {
                       </div>
                     </TabsContent>
                     
-                    <TabsContent value="paypal" className="mt-4">
-                      <p className="text-gray-600">
-                        You'll be redirected to PayPal to complete your payment after placing the order.
-                      </p>
+                    <TabsContent value="upi" className="mt-4">
+                      <div className="space-y-4">
+                        <p className="text-gray-600">
+                          Pay using any UPI app by entering your UPI ID
+                        </p>
+                        <div>
+                          <Label htmlFor="upiId">UPI ID</Label>
+                          <Input id="upiId" placeholder="yourname@bank" />
+                        </div>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="gpay" className="mt-4">
+                      <div className="text-center py-4">
+                        <img 
+                          src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Google_Pay_Logo.svg" 
+                          alt="Google Pay" 
+                          className="h-12 mx-auto mb-4"
+                        />
+                        <p className="text-gray-600">
+                          You'll be redirected to Google Pay to complete your payment after placing the order.
+                        </p>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="phonepe" className="mt-4">
+                      <div className="text-center py-4">
+                        <img 
+                          src="https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png" 
+                          alt="PhonePe" 
+                          className="h-12 mx-auto mb-4"
+                        />
+                        <p className="text-gray-600">
+                          You'll be redirected to PhonePe to complete your payment after placing the order.
+                        </p>
+                      </div>
                     </TabsContent>
                     
                     <TabsContent value="cash" className="mt-4">
@@ -268,18 +302,18 @@ const Checkout = () => {
                   className="w-full bg-gradient-to-r from-brand-orange to-brand-purple hover:opacity-90 text-lg py-6"
                   disabled={processing}
                 >
-                  {processing ? 'Processing...' : `Complete Order • $${totalPrice.toFixed(2)}`}
+                  {processing ? 'Processing...' : `Complete Order • ₹${priceInRupees.toFixed(0)}`}
                 </Button>
                 
                 <p className="text-center text-sm text-gray-500 mt-4">
                   By placing this order, you agree to our{' '}
-                  <a href="/terms" className="text-brand-orange hover:text-brand-purple">
+                  <Link to="/terms" className="text-brand-orange hover:text-brand-purple">
                     Terms of Service
-                  </a>{' '}
+                  </Link>{' '}
                   and{' '}
-                  <a href="/privacy" className="text-brand-orange hover:text-brand-purple">
+                  <Link to="/privacy" className="text-brand-orange hover:text-brand-purple">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </p>
               </div>
             </form>
