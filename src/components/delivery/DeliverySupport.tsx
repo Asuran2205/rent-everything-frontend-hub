@@ -77,7 +77,7 @@ const chatMessages = [
   {
     id: 6,
     sender: 'user',
-    message: 'Okay, I'll wait for 15 minutes and try again. Thank you!',
+    message: "Okay, I'll wait for 15 minutes and try again. Thank you!",
     time: '10:39 AM',
     name: 'Me'
   }
