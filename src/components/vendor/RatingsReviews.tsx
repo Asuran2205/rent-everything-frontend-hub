@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -38,7 +37,7 @@ const RatingsReviews = () => {
       rating: 5,
       comment: 'Excellent camera! It was in perfect condition and worked flawlessly. Would definitely rent again.',
       date: 'Apr 18, 2025',
-      response: 'Thank you for your kind words! We're glad you enjoyed using our camera.'
+      response: "Thank you for your kind words! We're glad you enjoyed using our camera."
     },
     {
       id: '2',
@@ -51,7 +50,7 @@ const RatingsReviews = () => {
         image: 'https://randomuser.me/api/portraits/women/44.jpg'
       },
       rating: 3,
-      comment: 'The drone was good but had some scratches that weren't shown in the photos. Battery life was less than advertised.',
+      comment: "The drone was good but had some scratches that weren't shown in the photos. Battery life was less than advertised.",
       date: 'Apr 15, 2025'
     },
     {
@@ -106,16 +105,13 @@ const RatingsReviews = () => {
     setReviews(updatedReviews);
     toast.success('Response submitted successfully');
     
-    // Clear the response input
     const newResponses = { ...responses };
     delete newResponses[id];
     setResponses(newResponses);
   };
   
-  // Calculate average rating
   const averageRating = (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1);
   
-  // Count reviews by rating
   const ratingCounts = reviews.reduce((acc, review) => {
     acc[review.rating] = (acc[review.rating] || 0) + 1;
     return acc;
@@ -179,7 +175,6 @@ const RatingsReviews = () => {
               <TabsTrigger value="unresponded">Unresponded</TabsTrigger>
             </TabsList>
             
-            {/* All Reviews */}
             <TabsContent value="all" className="mt-0">
               <div className="space-y-4">
                 {reviews.map(review => (
@@ -248,7 +243,6 @@ const RatingsReviews = () => {
               </div>
             </TabsContent>
             
-            {/* Responded Reviews */}
             <TabsContent value="responded" className="mt-0">
               <div className="space-y-4">
                 {reviews
@@ -307,7 +301,6 @@ const RatingsReviews = () => {
               </div>
             </TabsContent>
             
-            {/* Unresponded Reviews */}
             <TabsContent value="unresponded" className="mt-0">
               <div className="space-y-4">
                 {reviews
