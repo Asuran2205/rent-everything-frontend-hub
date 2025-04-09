@@ -4,6 +4,13 @@ import { Link } from 'react-router-dom';
 import { Menu, X, User, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,9 +20,12 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const dashboardLink = userType 
-    ? `/dashboard/${userType.toLowerCase()}` 
-    : '/login';
+  const getUserDashboardLink = () => {
+    if (userType === 'CUSTOMER') return '/dashboard/customer';
+    if (userType === 'VENDOR') return '/dashboard/vendor';
+    if (userType === 'DELIVERY') return '/dashboard/delivery';
+    return '/login';
+  };
 
   return (
     <header className="w-full bg-white shadow-md">
@@ -64,13 +74,41 @@ const Header = () => {
               )}
               
               <div className="flex items-center space-x-2">
-                <Link to={dashboardLink}>
-                  <Button variant="outline" className="flex items-center">
-                    <User className="h-5 w-5 mr-2" />
-                    Dashboard
-                  </Button>
-                </Link>
-                <Button onClick={logout} variant="ghost">Logout</Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="flex items-center">
+                      <User className="h-5 w-5 mr-2" />
+                      Dashboard
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link to={getUserDashboardLink()}>
+                        {userType?.toLowerCase() === 'customer' ? 'Customer Dashboard' : 
+                         userType?.toLowerCase() === 'vendor' ? 'Vendor Dashboard' : 
+                         'Delivery Dashboard'}
+                      </Link>
+                    </DropdownMenuItem>
+                    {userType === 'CUSTOMER' && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link to="/dashboard/vendor">Switch to Vendor Dashboard</Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    {userType === 'VENDOR' && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link to="/dashboard/customer">Switch to Customer Dashboard</Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </>
           )}
@@ -129,9 +167,24 @@ const Header = () => {
                 </Link>
               )}
               
-              <Link to={dashboardLink} onClick={toggleMenu} className="py-2 border-b">
-                Dashboard
+              <Link to={getUserDashboardLink()} onClick={toggleMenu} className="py-2 border-b">
+                {userType?.toLowerCase() === 'customer' ? 'Customer Dashboard' : 
+                 userType?.toLowerCase() === 'vendor' ? 'Vendor Dashboard' : 
+                 'Delivery Dashboard'}
               </Link>
+              
+              {userType === 'CUSTOMER' && (
+                <Link to="/dashboard/vendor" onClick={toggleMenu} className="py-2 border-b">
+                  Switch to Vendor Dashboard
+                </Link>
+              )}
+              
+              {userType === 'VENDOR' && (
+                <Link to="/dashboard/customer" onClick={toggleMenu} className="py-2 border-b">
+                  Switch to Customer Dashboard
+                </Link>
+              )}
+              
               <Button onClick={logout} variant="ghost" className="justify-start px-0">
                 Logout
               </Button>
